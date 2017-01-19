@@ -61,7 +61,7 @@ int main(int argc, char * argv[]){
 	cout << "nnz: " << Op.nnz() << "/" << Op.rows()*Op.cols() << " = " << double(Op.nnz())/double(Op.rows()*Op.cols()) << endl;
 	unsigned int niters;
 	unsigned int nitmax = 5000;
-	double tol = 1e-9;
+	double tol = 1e-14;
 
 	// cout << "************************** CG - JACOBI PC:" << endl;
 	// JacobiPreconditioner jpc(Op);
