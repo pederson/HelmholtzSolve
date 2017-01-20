@@ -19,13 +19,14 @@ int main(int argc, char * argv[]){
 	double dx = (xmax-xmin)/double(nx-1);
 	double dy = (ymax-ymin)/double(ny-1);
 
-	double k = dx/2;
+	double k = sqrt(0.75)/dx;
 	double eps0 = 8.854e-12;
 	double mu0 = 4*3.14159e-7;
 
 	// construct the operator matrix
-	SparseMatrix Op(nx*ny, nx*ny);
+	SparseMatrix Op(2*nx*ny, 2*nx*ny);
 	unsigned int c, up, dn, lt, rt;
+	/*
 	for (auto i=0; i<nx; i++){
 		for (auto j=0; j<ny; j++){
 			c = nx*j + i;
@@ -34,17 +35,164 @@ int main(int argc, char * argv[]){
 			lt = nx*j + i-1;
 			rt = nx*j + i+1;
 
-			Op.set(c, c, 4 - 0.75);
+			// This is the diagonal component of the operator
+			Op.set(c, c, 4-k*k*dx*dx);
+			Op.set(c+nx*ny, c+nx*ny, 4-k*k*dx*dx);
 
-			if (j<ny-1)	Op.set(c, up, -1);
-			if (j>0) 	Op.set(c, dn, -1);
-			if (i>0)	Op.set(c, lt, -1);
-			if (i<nx-1) Op.set(c, rt, -1);
+			// These are the off-diagonal components of the operator
+			if (j<ny-1){
+				Op.set(c, up, -1);
+				Op.set(c+nx*ny, up+nx*ny, -1);
+			}
+			if (j>0){
+				Op.set(c, dn, -1);
+				Op.set(c+nx*ny, dn+nx*ny, -1);
+			}
+			if (i>0){
+				Op.set(c, lt, -1);
+				Op.set(c+nx*ny, lt+nx*ny, -1);
+			}
+			if (i<nx-1){
+				Op.set(c, rt, -1);
+				Op.set(c+nx*ny, rt+nx*ny, -1);
+			}
+			//
 		}
 	}
+	*/
+	// Second-Order ABCs
+	for (auto i=0; i<nx; i++){
+		for (auto j=0; j<ny; j++){
+			c = nx*j + i;
+			up = nx*(j+1) + i;
+			dn = nx*(j-1) + i;
+			lt = nx*j + i-1;
+			rt = nx*j + i+1;
+
+			if (i==0){
+				if (j!=0 && j!=ny-1){	// skip corners
+					
+
+					// real part boundary condition
+					Op.set(c, c, -k*dx+1.0/(k*dx));
+					Op.set(c, rt, -0.5*1.0/(k*dx));
+					Op.set(c, lt, -0.5*1.0/(k*dx));
+					Op.set(c, c+nx*ny, -1);
+					Op.set(c, up+nx*ny, 1);
+
+					// imaginary part boundary condition
+					Op.set(c+nx*ny, c+nx*ny, k*dx-1.0/(k*dx));
+					Op.set(c+nx*ny, rt+nx*ny, 0.5*1.0/(k*dx));
+					Op.set(c+nx*ny, lt+nx*ny, 0.5*1.0/(k*dx));
+					Op.set(c+nx*ny, c, -1);
+					Op.set(c+nx*ny, up, 1);
+				}
+			}
+			else if (i==nx-1){
+				if (j!=0 && j!=ny-1){	// skip corners
+					
+
+					Op.set(c, c, -k*dx+1.0/(k*dx));
+					Op.set(c, rt, -0.5*1.0/(k*dx));
+					Op.set(c, lt, -0.5*1.0/(k*dx));
+					Op.set(c, c+nx*ny, 1);
+					Op.set(c, dn+nx*ny, -1);
+
+					// imaginary part boundary condition
+					Op.set(c+nx*ny, c+nx*ny, k*dx-1.0/(k*dx));
+					Op.set(c+nx*ny, rt+nx*ny, 0.5*1.0/(k*dx));
+					Op.set(c+nx*ny, lt+nx*ny, 0.5*1.0/(k*dx));
+					Op.set(c+nx*ny, c, 1);
+					Op.set(c+nx*ny, dn, -1);
+				}
+			}
+			else if (j==0){
+				if (i==0 || i==nx-1){	// skip corners
+					Op.set(c, c, -k*dx+1.0/(k*dx));
+					Op.set(c, up, -0.5*1.0/(k*dx));
+					Op.set(c, dn, -0.5*1.0/(k*dx));
+					Op.set(c, c+nx*ny, -1);
+					Op.set(c, rt+nx*ny, 1);
+
+					// imaginary part boundary condition
+					Op.set(c+nx*ny, c+nx*ny, k*dx-1.0/(k*dx));
+					Op.set(c+nx*ny, up+nx*ny, 0.5*1.0/(k*dx));
+					Op.set(c+nx*ny, dn+nx*ny, 0.5*1.0/(k*dx));
+					Op.set(c+nx*ny, c, -1);
+					Op.set(c+nx*ny, rt, 1);
+
+					
+				}
+			}
+			else if (j==ny-1){
+				if (i==0 || i==nx-1){	// skip corners
+					
+					Op.set(c, c, -k*dx+1.0/(k*dx));
+					Op.set(c, up, -0.5*1.0/(k*dx));
+					Op.set(c, dn, -0.5*1.0/(k*dx));
+					Op.set(c, c+nx*ny, 1);
+					Op.set(c, lt+nx*ny, -1);
+
+					// imaginary part boundary condition
+					Op.set(c+nx*ny, c+nx*ny, k*dx-dx/k);
+					Op.set(c+nx*ny, up+nx*ny, 0.5*dx/k);
+					Op.set(c+nx*ny, dn+nx*ny, 0.5*dx/k);
+					Op.set(c+nx*ny, c, 1);
+					Op.set(c+nx*ny, lt, -1);
+					
+				}
+			}
+			else{
+				// if ((i*dx-0.5)*(i*dx-0.5) + (j*dy-0.5)*(j*dy-0.5) <= 0.2^2){
+				// 	Op.set(c, c, 4-1.5*k*k*dx*dx);
+				// 	Op.set(c+nx*ny, c+nx*ny, 4-1.5*k*k*dx*dx);
+				// }
+				// else{
+					Op.set(c, c, 4-k*k*dx*dx);
+					Op.set(c+nx*ny, c+nx*ny, 4-k*k*dx*dx);
+				// }
+				// This is the diagonal component of the operator
+				
+				Op.set(c, up, -1);
+				Op.set(c+nx*ny, up+nx*ny, -1);
+				Op.set(c, dn, -1);
+				Op.set(c+nx*ny, dn+nx*ny, -1);
+				Op.set(c, lt, -1);
+				Op.set(c+nx*ny, lt+nx*ny, -1);
+				Op.set(c, rt, -1);
+				Op.set(c+nx*ny, rt+nx*ny, -1);
+			}
+			
+		}
+	}
+	// // handle corner boundary points
+	// Op.set(0, 0, 1);
+	// Op.set(nx*ny, nx*ny, 1);
+	// Op.set(nx*0 + nx-1, nx*0+nx-1, 1);
+	// // bottom left
+	// c = nx*0 + 0;
+	// up = nx*(0+1) + 0;
+	// dn = nx*(0-1) + 0;
+	// lt = nx*0 + 0-1;
+	// rt = nx*0 + 0+1;
+	// Op.set(c, c, -2);
+	// Op.set(c, rt, 1);
+	// Op.set(c, up, 1);
+
+	// // bottom right
+	// c = nx*(ny-1) + 0;
+	// up = nx*(ny-1+1) + 0;
+	// dn = nx*(ny-1-1) + 0;
+	// lt = nx*(ny-1) + 0-1;
+	// rt = nx*(ny-1) + 0+1;
+	// Op.set(c, c, 2);
+	// Op.set(c, lt, -1);
+	// Op.set(c, up, 1);
+
+	cout << "finished setup" << endl;
 
 	// right hand side forcing
-	Vector rho(nx*ny);
+	Vector rho(2*nx*ny);
 	rho(nx*(ny*0.5) + nx*0.5) = 1*dx*dx;
 	/*
 	// quadrupole
@@ -57,11 +205,11 @@ int main(int argc, char * argv[]){
 
 
 	cout << "****************** PRECONDITIONED SOLVERS ******************" << endl;
-	Vector x(nx*ny);
+	Vector x(2*nx*ny);
 	cout << "nnz: " << Op.nnz() << "/" << Op.rows()*Op.cols() << " = " << double(Op.nnz())/double(Op.rows()*Op.cols()) << endl;
 	unsigned int niters;
 	unsigned int nitmax = 5000;
-	double tol = 1e-14;
+	double tol = 1e-12;
 
 	// cout << "************************** CG - JACOBI PC:" << endl;
 	// JacobiPreconditioner jpc(Op);
