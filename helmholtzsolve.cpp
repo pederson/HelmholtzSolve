@@ -19,7 +19,7 @@ int main(int argc, char * argv[]){
 	double dx = (xmax-xmin)/double(nx-1);
 	double dy = (ymax-ymin)/double(ny-1);
 
-	double k = sqrt(0.5)/dx;
+	double k = sqrt(0.1)/dx;
 	double eps0 = 8.854e-12;
 	double mu0 = 4*3.14159e-7;
 
@@ -187,61 +187,61 @@ int main(int argc, char * argv[]){
 
 			// left boundary
 			if (i==0){
-				// if (j!=0 && j!=ny-1){	// skip corners
-					Op.set(c, c, -k*dx);
-					Op.set(c, c+nx*ny, -1);
-					Op.set(c, rt+nx*ny, 1);
+				// if (j!=0){	// skip corners
+					Op.add(c, c, k*dx);
+					Op.add(c, c+nx*ny, -1);
+					Op.add(c, rt+nx*ny, 1);
 
 					// imaginary part boundary condition
-					Op.set(c+nx*ny, c+nx*ny, k*dx);
-					Op.set(c+nx*ny, c, -1);
-					Op.set(c+nx*ny, rt, 1);
+					Op.add(c+nx*ny, c+nx*ny, -k*dx);
+					Op.add(c+nx*ny, c, -1);
+					Op.add(c+nx*ny, rt, 1);
 
 				// }
 			}
 			// right boundary
 			else if (i==nx-1){
-				// if (j!=0 && j!=ny-1){	// skip corners
-					Op.set(c, c, -k*dx);
-					Op.set(c, c+nx*ny, 1);
-					Op.set(c, lt+nx*ny, -1);
+				// if (j!=ny-1){	// skip corners
+					Op.add(c, c, k*dx);
+					Op.add(c, c+nx*ny, 1);
+					Op.add(c, lt+nx*ny, -1);
 
 					// imaginary part boundary condition
-					Op.set(c+nx*ny, c+nx*ny, k*dx);
-					Op.set(c+nx*ny, c, 1);
-					Op.set(c+nx*ny, lt, -1);
+					Op.add(c+nx*ny, c+nx*ny, -k*dx);
+					Op.add(c+nx*ny, c, 1);
+					Op.add(c+nx*ny, lt, -1);
 
 				// }
 			}
 			// bottom boundary
 			else if (j==0){
-				// if (i==0 || i==nx-1){	// skip corners
+				// if (i!=nx-1){	// skip corners
 					
 
 					// real part boundary condition
-					Op.set(c, c, -k*dx);
-					Op.set(c, c+nx*ny, -1);
-					Op.set(c, up+nx*ny, 1);
+					Op.add(c, c, k*dx);
+					Op.add(c, c+nx*ny, -1);
+					Op.add(c, up+nx*ny, 1);
 
 					// imaginary part boundary condition
-					Op.set(c+nx*ny, c+nx*ny, k*dx);
-					Op.set(c+nx*ny, c, -1);
-					Op.set(c+nx*ny, up, 1);
+					Op.add(c+nx*ny, c+nx*ny, -k*dx);
+					Op.add(c+nx*ny, c, -1);
+					Op.add(c+nx*ny, up, 1);
 
 				// }
 			}
 			// top boundary
 			else if (j==ny-1){
-				// if (i==0 || i==nx-1){	// skip corners
+				// if (i!=0){	// skip corners
 
-					Op.set(c, c, -k*dx);
-					Op.set(c, c+nx*ny, 1);
-					Op.set(c, dn+nx*ny, -1);
+					Op.add(c, c, k*dx);
+					Op.add(c, c+nx*ny, 1);
+					Op.add(c, dn+nx*ny, -1);
 
 					// imaginary part boundary condition
-					Op.set(c+nx*ny, c+nx*ny, k*dx);
-					Op.set(c+nx*ny, c, 1);
-					Op.set(c+nx*ny, dn, -1);
+					Op.add(c+nx*ny, c+nx*ny, -k*dx);
+					Op.add(c+nx*ny, c, 1);
+					Op.add(c+nx*ny, dn, -1);
 					
 				// }
 			}
@@ -282,10 +282,38 @@ int main(int argc, char * argv[]){
 				// 	Op.set(c+nx*ny, c+nx*ny, 1);
 				// 	// cout << "Boundary Point!" << endl;
 				// }
-				if (di*dx < 0.7 && di*dx > 0.5 && dj*dy < 0.6 && dj*dy > 0.4){
+				if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.55 && dj*dy > 0.45){
 					Op.set(c, c, 1);
 					Op.set(c+nx*ny, c+nx*ny, 1);
 				}
+				else if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.75 && dj*dy > 0.65){
+					Op.set(c, c, 1);
+					Op.set(c+nx*ny, c+nx*ny, 1);
+				}
+				else if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.35 && dj*dy > 0.25){
+					Op.set(c, c, 1);
+					Op.set(c+nx*ny, c+nx*ny, 1);
+				}
+				// if (di*dx < 0.7 && di*dx > 0.5 && dj*dy < 0.7 && dj*dy > 0.55){
+				// 	Op.set(c, c, 1);
+				// 	Op.set(c+nx*ny, c+nx*ny, 1);
+				// }
+				// else if (di*dx < 0.7 && di*dx > 0.5 && dj*dy < 0.45 && dj*dy > 0.3){
+				// 	Op.set(c, c, 1);
+				// 	Op.set(c+nx*ny, c+nx*ny, 1);
+				// }
+				// if (di*dx < 0.7 && di*dx > 0.2 && dj*dy < 0.7 && dj*dy > 0.55){
+				// 	Op.set(c, c, 1);
+				// 	Op.set(c+nx*ny, c+nx*ny, 1);
+				// }
+				// else if (di*dx < 0.7 && di*dx > 0.2 && dj*dy < 0.45 && dj*dy > 0.3){
+				// 	Op.set(c, c, 1);
+				// 	Op.set(c+nx*ny, c+nx*ny, 1);
+				// }
+				// else if (di*dx < 0.23 && di*dx > 0.2 && dj*dy < 0.7 && dj*dy > 0.3){
+				// 	Op.set(c, c, 1);
+				// 	Op.set(c+nx*ny, c+nx*ny, 1);
+				// }
 				else{
 					// cout << "domain point!" << endl;
 					Op.set(c, c, 4-k*k*dx*dx);
@@ -307,35 +335,7 @@ int main(int argc, char * argv[]){
 			
 		}
 	}
-	// // handle corner boundary points
-	// Op.set(0, 0, 1);
-	// Op.set(nx*ny, nx*ny, 1);
-	// Op.set(nx*0 + nx-1, nx*0+nx-1, 1);
-	// Op.set(nx*0 + nx-1 + nx*ny, nx*0+nx-1+nx*ny, 1);
-	// Op.set(nx*(ny-1)+0, nx*(ny-1)+0, 1);
-	// Op.set(nx*(ny-1)+0+nx*ny, nx*(ny-1)+0+nx*ny, 1);
-	// Op.set(nx*(ny-1)+nx-1, nx*(ny-1)+nx-1, 1);
-	// Op.set(nx*(ny-1)+nx-1+nx*ny, nx*(ny-1)+nx-1+nx*ny, 1);
 
-	// // bottom left
-	// c = nx*0 + 0;
-	// up = nx*(0+1) + 0;
-	// dn = nx*(0-1) + 0;
-	// lt = nx*0 + 0-1;
-	// rt = nx*0 + 0+1;
-	// Op.set(c, c, -2);
-	// Op.set(c, rt, 1);
-	// Op.set(c, up, 1);
-
-	// // bottom right
-	// c = nx*(ny-1) + 0;
-	// up = nx*(ny-1+1) + 0;
-	// dn = nx*(ny-1-1) + 0;
-	// lt = nx*(ny-1) + 0-1;
-	// rt = nx*(ny-1) + 0+1;
-	// Op.set(c, c, 2);
-	// Op.set(c, lt, -1);
-	// Op.set(c, up, 1);
 
 	cout << "finished setup" << endl;
 
@@ -345,7 +345,7 @@ int main(int argc, char * argv[]){
 		rho(nx*(j) + nx*0.3) = 1*dx*dx;
 	}
 	rho(nx*(ny*0.5) + nx*0.3) = 1*dx*dx;
-	// rho(nx*(ny*0.5) + nx*0.25) = 1*dx*dx;
+	// rho(nx*(ny*0.5) + nx*0.5) = 1*dx*dx;
 	
 	// // quadrupole
 	// rho(nx*(ny*0.48)+nx*0.48) = -1*dx*dx;
@@ -364,7 +364,7 @@ int main(int argc, char * argv[]){
 	Vector x(2*nx*ny);
 	cout << "nnz: " << Op.nnz() << "/" << Op.rows()*Op.cols() << " = " << double(Op.nnz())/double(Op.rows()*Op.cols()) << endl;
 	unsigned int niters;
-	unsigned int nitmax = 5000;
+	unsigned int nitmax = 1000;
 	double tol = 1e-9;
 
 	// cout << "************************** CG - JACOBI PC:" << endl;
