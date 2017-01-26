@@ -251,6 +251,9 @@ int main(int argc, char * argv[]){
 				if (false){
 
 				}
+
+				/**************************************************
+				// four square cylinders in corners
 				// if (di*dx > 0.6 && (dj*dy > 0.6)){
 				// 	// Op.set(c, c, 4-2.0*k*k*dx*dx);
 				// 	// Op.set(c+nx*ny, c+nx*ny, 4-4.0*k*k*dx*dx);
@@ -275,6 +278,10 @@ int main(int argc, char * argv[]){
 				// 	Op.set(c, c, 1);
 				// 	Op.set(c+nx*ny, c+nx*ny, 1);
 				// }
+				//************************************************/
+
+				/**************************************************
+				// attempted cylinder
 				// if ((i-0.75*nx)*(i-0.75*nx) + (j-0.5*ny)*(j-0.5*ny) <= (0.1*nx)^2){
 				// 	// Op.set(c, c, 4-4.0*k*k*dx*dx);
 				// 	// Op.set(c+nx*ny, c+nx*ny, 4-4.0*k*k*dx*dx);
@@ -282,18 +289,81 @@ int main(int argc, char * argv[]){
 				// 	Op.set(c+nx*ny, c+nx*ny, 1);
 				// 	// cout << "Boundary Point!" << endl;
 				// }
+				//************************************************/
+
+				/**************************************************
+				// three square cylinders
 				if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.55 && dj*dy > 0.45){
 					Op.set(c, c, 1);
 					Op.set(c+nx*ny, c+nx*ny, 1);
 				}
-				else if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.75 && dj*dy > 0.65){
+				else if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.85 && dj*dy > 0.75){
 					Op.set(c, c, 1);
 					Op.set(c+nx*ny, c+nx*ny, 1);
 				}
-				else if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.35 && dj*dy > 0.25){
+				else if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.25 && dj*dy > 0.15){
 					Op.set(c, c, 1);
 					Op.set(c+nx*ny, c+nx*ny, 1);
 				}
+				//************************************************/
+
+				/**************************************************
+				// one square cylinders
+				if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.55 && dj*dy > 0.45){
+					Op.set(c, c, 1);
+					Op.set(c+nx*ny, c+nx*ny, 1);
+				}
+				//************************************************/
+
+				/*
+				// halfspace
+				if (di*dx > 0.5 && di*dx < 0.51){
+					Op.set(c, c, 4+4*k*k*dx*dx);
+					Op.set(c+nx*ny, c+nx*ny, 4+4*k*k*dx*dx);
+
+					Op.set(c, up, -1);
+					Op.set(c+nx*ny, up+nx*ny, -1);
+					Op.set(c, dn, -1);
+					Op.set(c+nx*ny, dn+nx*ny, -1);
+					Op.set(c, lt, -1);
+					Op.set(c+nx*ny, lt+nx*ny, -1);
+					Op.set(c, rt, -1);
+					Op.set(c+nx*ny, rt+nx*ny, -1);
+
+					// lossy part
+					// Op.set(c, c+nx*ny, -10*k*k*dx*dx);
+					// Op.set(c+nx*ny, c, -10*k*k*dx*dx);
+				}
+				//************************************************/
+
+
+
+				
+				// box enclosure
+				if (di*dx > 0.2 && di*dx < 0.8 && dj*dy > 0.2 && dj*dy < 0.8 &&
+					(di*dx < 0.25 || di*dx > 0.75 || dj*dy < 0.25 || dj*dy > 0.75)){
+						Op.set(c, c, 4+4*k*k*dx*dx);
+						Op.set(c+nx*ny, c+nx*ny, 4+4*k*k*dx*dx);
+
+						Op.set(c, up, -1);
+						Op.set(c+nx*ny, up+nx*ny, -1);
+						Op.set(c, dn, -1);
+						Op.set(c+nx*ny, dn+nx*ny, -1);
+						Op.set(c, lt, -1);
+						Op.set(c+nx*ny, lt+nx*ny, -1);
+						Op.set(c, rt, -1);
+						Op.set(c+nx*ny, rt+nx*ny, -1);
+
+						// lossy part
+						// Op.set(c, c+nx*ny, -10*k*k*dx*dx);
+						// Op.set(c+nx*ny, c, -10*k*k*dx*dx);
+				}
+				//************************************************/
+
+
+
+				/**************************************************
+				// two square cylinders
 				// if (di*dx < 0.7 && di*dx > 0.5 && dj*dy < 0.7 && dj*dy > 0.55){
 				// 	Op.set(c, c, 1);
 				// 	Op.set(c+nx*ny, c+nx*ny, 1);
@@ -302,6 +372,10 @@ int main(int argc, char * argv[]){
 				// 	Op.set(c, c, 1);
 				// 	Op.set(c+nx*ny, c+nx*ny, 1);
 				// }
+				//************************************************/
+
+				/**************************************************
+				// three square cylinders
 				// if (di*dx < 0.7 && di*dx > 0.2 && dj*dy < 0.7 && dj*dy > 0.55){
 				// 	Op.set(c, c, 1);
 				// 	Op.set(c+nx*ny, c+nx*ny, 1);
@@ -314,6 +388,8 @@ int main(int argc, char * argv[]){
 				// 	Op.set(c, c, 1);
 				// 	Op.set(c+nx*ny, c+nx*ny, 1);
 				// }
+				//************************************************/
+
 				else{
 					// cout << "domain point!" << endl;
 					Op.set(c, c, 4-k*k*dx*dx);
@@ -341,11 +417,11 @@ int main(int argc, char * argv[]){
 
 	// right hand side forcing
 	Vector rho(2*nx*ny); rho.fill(0);
-	for (auto j=0; j<ny; j++){
-		rho(nx*(j) + nx*0.3) = 1*dx*dx;
-	}
-	rho(nx*(ny*0.5) + nx*0.3) = 1*dx*dx;
-	// rho(nx*(ny*0.5) + nx*0.5) = 1*dx*dx;
+	// for (auto j=0; j<ny; j++){
+	// 	rho(nx*(j) + nx*0.3) = 1*dx*dx;
+	// }
+	// rho(nx*(ny*0.5) + nx*0.3) = 1*dx*dx;
+	rho(nx*(ny*0.5) + nx*0.5) = 1*dx*dx;
 	
 	// // quadrupole
 	// rho(nx*(ny*0.48)+nx*0.48) = -1*dx*dx;
