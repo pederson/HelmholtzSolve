@@ -38,12 +38,14 @@ int main(int argc, char * argv[]){
 	// CSGeometry2D model(Rectangle({0.3,0.5},{0.4,0.4}),RegularPolygon(7,{0.5,0.5},0.2),XOR);
 
 
-	unsigned int ny=100, nx = 100;
+	unsigned int ny=100, nx = 100, nz = 100;
 	double xmin = 0, xmax = 1;
 	double ymin = 0, ymax = 1;
+	double zmin = 0, zmax = 1;
 
 	double dx = (xmax-xmin)/double(nx-1);
 	double dy = (ymax-ymin)/double(ny-1);
+	double dz = (zmax-zmin)/double(nz-1);
 
 	double k = sqrt(0.1)/dx;
 	double eps0 = 8.854e-12;
@@ -62,6 +64,27 @@ int main(int argc, char * argv[]){
 	geom.dlmwrite("geometry.txt");
 
 
+	// try 3D geometry
+	// CSGeometry3D model3(Sphere({0.5,0.5,0.5}, 0.2));
+	// CSGeometry3D model3(Sphere({0.5,0.5,0.5},0.3),Cylinder({0.5,0.5,0.1},{0,0,1},{1,0,0}, 0.1, 0.8),XOR);
+	// model3 = CSGeometry3D(model3, Cylinder({0.1,0.5,0.5},{1,0,0},{0,0,1}, 0.1, 0.8), DIFFERENCE);
+	// model3 = CSGeometry3D(model3, Cylinder({0.5,0.1,0.5},{0,1,0},{0,0,1}, 0.1, 0.8), XOR);
+	// CSGeometry3D model3(Pyramid(RegularPolygon(5,{0,0},0.2), {0.5, 0.5, 0.1}, {1,0,1}, {0,1,0}, 0.6));
+	CSGeometry3D model3(Extrusion(Ellipse({0,0},{0.1,0.3}), {0.5, 0.5, 0.1}, {1,0,1}, {0,1,0}, 0.6));
+	Vector geom3(nx*ny*nz); geom3.fill(0);
+	for (auto i=0; i<nx; i++){
+		for (auto j=0; j<ny; j++){
+			for (auto k=0; k<nz; k++){
+				double di = double(i);
+				double dj = double(j);
+				double dk = double(k);
+				if (model3.contains_point({di*dx,dj*dy,dk*dz})) geom3(nx*ny*k + nx*j+i) = 1;
+			}
+		}
+	}
+	geom3.dlmwrite("geometry3.txt");
+
+	throw -1;
 
 	// construct the operator matrix
 	SparseMatrix Op(2*nx*ny, 2*nx*ny);
