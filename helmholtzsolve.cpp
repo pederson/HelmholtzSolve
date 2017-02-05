@@ -3,7 +3,10 @@
 #include "LinearAlgebra/SparseMatrix.hpp"
 #include "LinearAlgebra/Preconditioner.hpp"
 
+#include <csg.h>
+
 using namespace std;
+using namespace csg;
 
 // g++ -std=c++11 fishsolve.cpp -o fishsolve
 
@@ -11,6 +14,29 @@ using namespace std;
 #include "LinearAlgebra/LinearSolvers.hpp"
 
 int main(int argc, char * argv[]){
+
+	// box enclosure
+	// CSGeometry2D model(Rectangle({0.5,0.5},{0.8,0.8}),Rectangle({0.5,0.5},{0.7,0.7}),DIFFERENCE);
+	// circle cut out of box
+	CSGeometry2D model(Rectangle({0.5,0.5},{0.8,0.8}),Circle({0.5,0.5},0.3),DIFFERENCE);
+	// submarine window
+	// CSGeometry2D boxcirc(Rectangle({0.5,0.5},{0.8,0.8}),Circle({0.5,0.5},0.3),DIFFERENCE);
+	// CSGeometry2D twobox(Rectangle({0.5,0.5},{0.2,0.8}),Rectangle({0.5,0.5},{0.8,0.2}),UNION);
+	// CSGeometry2D model(boxcirc, twobox, UNION);
+	// chamfered corner
+	// CSGeometry2D boxcirc(Rectangle({0.85,0.85},{0.1,0.1}),Circle({0.8,0.8},0.1),DIFFERENCE);
+	// CSGeometry2D model(Rectangle({0.5,0.5},{0.8,0.8}), boxcirc, DIFFERENCE);
+	// circle and box xor
+	// CSGeometry2D model(Rectangle({0.3,0.5},{0.4,0.4}),Circle({0.5,0.5},0.3),XOR);
+	// ellipse
+	// CSGeometry2D model(Rectangle({0.3,0.5},{0.4,0.4}),Ellipse({0.5,0.5},{0.7,0.3}),XOR);
+	// triangle
+	// CSGeometry2D model(Rectangle({0.3,0.5},{0.4,0.4}),Triangle({0.3,0.5},{0.5,0.9},{0.6,0.5}),XOR);
+	// polygon
+	// CSGeometry2D model(Rectangle({0.3,0.5},{0.4,0.4}),Polygon({LineSegment({0.3,0.5},{0.5,0.9}),LineSegment({0.5,0.9},{0.8,0.9}),LineSegment({0.8,0.9},{0.6,0.5})}),XOR);
+	// regular polygon
+	// CSGeometry2D model(Rectangle({0.3,0.5},{0.4,0.4}),RegularPolygon(7,{0.5,0.5},0.2),XOR);
+
 
 	unsigned int ny=100, nx = 100;
 	double xmin = 0, xmax = 1;
@@ -22,6 +48,20 @@ int main(int argc, char * argv[]){
 	double k = sqrt(0.1)/dx;
 	double eps0 = 8.854e-12;
 	double mu0 = 4*3.14159e-7;
+
+
+	Vector geom(nx*ny); geom.fill(0);
+	for (auto i=0; i<nx; i++){
+		for (auto j=0; j<ny; j++){
+			double di = double(i);
+			double dj = double(j);
+			if (model.contains_point({di*dx,dj*dy})) geom(nx*j+i) = 1;
+		}
+	}
+	// print out the geometry
+	geom.dlmwrite("geometry.txt");
+
+
 
 	// construct the operator matrix
 	SparseMatrix Op(2*nx*ny, 2*nx*ny);
@@ -248,100 +288,8 @@ int main(int argc, char * argv[]){
 			else{
 				double di = double(i);
 				double dj = double(j);
-				if (false){
+				if (model.contains_point({di*dx,dj*dx})){
 
-				}
-
-				/**************************************************
-				// four square cylinders in corners
-				// if (di*dx > 0.6 && (dj*dy > 0.6)){
-				// 	// Op.set(c, c, 4-2.0*k*k*dx*dx);
-				// 	// Op.set(c+nx*ny, c+nx*ny, 4-4.0*k*k*dx*dx);
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// }
-				// else if (di*dx > 0.6 && (dj*dy < 0.4)){
-				// 	// Op.set(c, c, 4-2.0*k*k*dx*dx);
-				// 	// Op.set(c+nx*ny, c+nx*ny, 4-4.0*k*k*dx*dx);
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// }
-				// else if (di*dx < 0.4 && (dj*dy < 0.4)){
-				// 	// Op.set(c, c, 4-2.0*k*k*dx*dx);
-				// 	// Op.set(c+nx*ny, c+nx*ny, 4-4.0*k*k*dx*dx);
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// }
-				// else if (di*dx < 0.4 && (dj*dy > 0.6)){
-				// 	// Op.set(c, c, 4-2.0*k*k*dx*dx);
-				// 	// Op.set(c+nx*ny, c+nx*ny, 4-4.0*k*k*dx*dx);
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// }
-				//************************************************/
-
-				/**************************************************
-				// attempted cylinder
-				// if ((i-0.75*nx)*(i-0.75*nx) + (j-0.5*ny)*(j-0.5*ny) <= (0.1*nx)^2){
-				// 	// Op.set(c, c, 4-4.0*k*k*dx*dx);
-				// 	// Op.set(c+nx*ny, c+nx*ny, 4-4.0*k*k*dx*dx);
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// 	// cout << "Boundary Point!" << endl;
-				// }
-				//************************************************/
-
-				/**************************************************
-				// three square cylinders
-				if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.55 && dj*dy > 0.45){
-					Op.set(c, c, 1);
-					Op.set(c+nx*ny, c+nx*ny, 1);
-				}
-				else if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.85 && dj*dy > 0.75){
-					Op.set(c, c, 1);
-					Op.set(c+nx*ny, c+nx*ny, 1);
-				}
-				else if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.25 && dj*dy > 0.15){
-					Op.set(c, c, 1);
-					Op.set(c+nx*ny, c+nx*ny, 1);
-				}
-				//************************************************/
-
-				/**************************************************
-				// one square cylinders
-				if (di*dx < 0.6 && di*dx > 0.5 && dj*dy < 0.55 && dj*dy > 0.45){
-					Op.set(c, c, 1);
-					Op.set(c+nx*ny, c+nx*ny, 1);
-				}
-				//************************************************/
-
-				/*
-				// halfspace
-				if (di*dx > 0.5 && di*dx < 0.51){
-					Op.set(c, c, 4+4*k*k*dx*dx);
-					Op.set(c+nx*ny, c+nx*ny, 4+4*k*k*dx*dx);
-
-					Op.set(c, up, -1);
-					Op.set(c+nx*ny, up+nx*ny, -1);
-					Op.set(c, dn, -1);
-					Op.set(c+nx*ny, dn+nx*ny, -1);
-					Op.set(c, lt, -1);
-					Op.set(c+nx*ny, lt+nx*ny, -1);
-					Op.set(c, rt, -1);
-					Op.set(c+nx*ny, rt+nx*ny, -1);
-
-					// lossy part
-					// Op.set(c, c+nx*ny, -10*k*k*dx*dx);
-					// Op.set(c+nx*ny, c, -10*k*k*dx*dx);
-				}
-				//************************************************/
-
-
-
-				
-				// box enclosure
-				if (di*dx > 0.2 && di*dx < 0.8 && dj*dy > 0.2 && dj*dy < 0.8 &&
-					(di*dx < 0.25 || di*dx > 0.75 || dj*dy < 0.25 || dj*dy > 0.75)){
 						Op.set(c, c, 4+4*k*k*dx*dx);
 						Op.set(c+nx*ny, c+nx*ny, 4+4*k*k*dx*dx);
 
@@ -360,35 +308,6 @@ int main(int argc, char * argv[]){
 				}
 				//************************************************/
 
-
-
-				/**************************************************
-				// two square cylinders
-				// if (di*dx < 0.7 && di*dx > 0.5 && dj*dy < 0.7 && dj*dy > 0.55){
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// }
-				// else if (di*dx < 0.7 && di*dx > 0.5 && dj*dy < 0.45 && dj*dy > 0.3){
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// }
-				//************************************************/
-
-				/**************************************************
-				// three square cylinders
-				// if (di*dx < 0.7 && di*dx > 0.2 && dj*dy < 0.7 && dj*dy > 0.55){
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// }
-				// else if (di*dx < 0.7 && di*dx > 0.2 && dj*dy < 0.45 && dj*dy > 0.3){
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// }
-				// else if (di*dx < 0.23 && di*dx > 0.2 && dj*dy < 0.7 && dj*dy > 0.3){
-				// 	Op.set(c, c, 1);
-				// 	Op.set(c+nx*ny, c+nx*ny, 1);
-				// }
-				//************************************************/
 
 				else{
 					// cout << "domain point!" << endl;
