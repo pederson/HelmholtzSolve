@@ -71,7 +71,9 @@ int main(int argc, char * argv[]){
 	// model3 = CSGeometry3D(model3, Cylinder({0.5,0.1,0.5},{0,1,0},{0,0,1}, 0.1, 0.8), XOR);
 	// CSGeometry3D model3(Pyramid(RegularPolygon(5,{0,0},0.2), {0.5, 0.5, 0.1}, {1,0,1}, {0,1,0}, 0.6));
 	// CSGeometry3D model3(Extrusion(Ellipse({0,0},{0.1,0.3}), {0.5, 0.5, 0.1}, {1,0,1}, {0,1,0}, 0.6));
-	CSGeometry3D model3(Sweep(Ellipse({0,0},{0.1,0.3}), {0.8, 0.5, 0.5}, {0,1,0}, {-1,0,0}, Line<3>({0.5,0.5,0}, {0,0,1}), 180));
+	CSGeometry3D sw(Sweep(Circle({0,0},{0.2}), {0.8, 0.5, 0.5}, {0,1,0}, {-1,0,0}, Line<3>({0.5,0.5,0}, {0,0,1}), 90));
+	CSGeometry3D sph(Sphere({0.8, 0.5, 0.5}, 0.1), Sphere({0.5, 0.8, 0.5}, 0.1), UNION);
+	CSGeometry3D model3(sw, sph, DIFFERENCE);
 
 	Vector geom3(nx*ny*nz); geom3.fill(0);
 	for (auto i=0; i<nx; i++){
